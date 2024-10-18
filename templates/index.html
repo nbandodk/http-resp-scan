@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Scanner</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Web Scanner</h1>
+        <form id="scanForm" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="file">Upload Domains File:</label>
+                <input type="file" id="file" name="file" required>
+            </div>
+            <div class="form-group">
+                <label for="search_terms">Search Terms (comma-separated):</label>
+                <input type="text" id="search_terms" name="search_terms" required>
+            </div>
+            <div class="form-group">
+                <label for="port">Port (optional):</label>
+                <input type="number" id="port" name="port" min="1" max="65535">
+            </div>
+            <div class="form-group">
+                <label for="append">Append to URL (optional):</label>
+                <input type="text" id="append" name="append">
+            </div>
+            <button type="submit">Start Scan</button>
+        </form>
+        <div id="output"></div>
+        <button id="downloadBtn" style="display: none;">Download Results</button>
+    </div>
+    <script src="/static/script.js"></script>
+</body>
+</html>
