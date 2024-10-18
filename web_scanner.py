@@ -53,10 +53,10 @@ async def run_scan(scan_id: str, input_file: str, output_file: str, search_terms
         scan_status[scan_id] = ScanStatus(total=total_domains, completed=0, results=[], output_file=output_file)
 
         for domain in domains:
-            result = await findit(output_file, search_terms, port, append, domain)
+            results = await findit(output_file, search_terms, port, append, domain)
             scan_status[scan_id].completed += 1
-            if result:
-                scan_status[scan_id].results.append(result)
+            if results:
+                scan_status[scan_id].results.extend(results)
             
             # Update progress every 5 domains or when all domains are processed
             if scan_status[scan_id].completed % 5 == 0 or scan_status[scan_id].completed == total_domains:

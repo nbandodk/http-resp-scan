@@ -35,40 +35,49 @@ def read_terms(filename):
         print(f"Error: Terms file '{filename}' not found.")
         sys.exit(1)
 
-async def findit(output_file, search_terms, port, path_append, domains):
-    domain = ".".join(encodings.idna.ToASCII(label).decode("ascii") for label in domains.strip().split("."))
+async def findit(output_file, search_terms, port, path_append, domain):
+    domain = ".".join(encodings.idna.ToASCII(label).decode("ascii") for label in domain.strip().split("."))
 
-    try:
-        # Create a requests session
-        s = requests.Session()
-        s.headers['User-Agent'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.75 Safari/537.36'
-        
-        # Construct the URL with optional port and path
-        url = f'https://{domain}:{port}' if port else f'https://{domain}'
-        url = f'{url}/{path_append.lstrip("/")}' if path_append else url
+    async with aiohttp.ClientSession() as session:
+        results = []
+        for protocol in ['http', 'https']:
+            try:
+                url = f'{protocol}://{domain}:{port}' if port else f'{protocol}://{domain}'
+                url = f'{url}/{path_append.lstrip("/")}' if path_append else url
 
-        response = s.get(url, verify=False, timeout=5)
-        
-        # Simpler check for search terms in response text and headers
-        found_terms = []
-        for term in search_terms:
-            if term in response.text or term in str(response.headers):
-                found_terms.append(term)
+                async with session.get(url, ssl=False, timeout=5) as response:
+                    text = await response.text()
+                    headers = str(response.headers)
 
-        if found_terms:
-            result = {"domain": domain, "found_terms": found_terms}
+                    found_terms = [term for term in search_terms if term in text or term in headers]
+
+                    if found_terms:
+                        results.append({"domain": domain, "protocol": protocol, "found_terms": found_terms})
+
+            except aiohttp.ClientError as e:
+                print(f"Error scanning {protocol}://{domain}: {str(e)}")
+            except asyncio.CancelledError:
+                raise
+            except Exception as e:
+                print(f"Error scanning {protocol}://{domain}: {str(e)}")
+
+    if results:
+        # Deduplicate results
+        unique_results = []
+        seen_domains = set()
+        for result in results:
+            if result['domain'] not in seen_domains:
+                seen_domains.add(result['domain'])
+                unique_results.append(result)
+
+        for result in unique_results:
             async with aiofiles.open(output_file, 'a') as file_handle:
-                await file_handle.write(f'{domain}: {", ".join(found_terms)}\n')
-            print(f'[*] Found: {domain} - Terms: {", ".join(found_terms)}')
-            return result
+                await file_handle.write(f'{result["domain"]} \n')
+            print(f'[*] Found: {result["domain"]} ({result["protocol"]}) - Terms: {", ".join(result["found_terms"])}')
 
-    except aiohttp.ClientError as e:
-        print(f"Error scanning {domain}: {str(e)}")
-    except asyncio.CancelledError:
-        raise
-    except Exception as e:
-        print(f"Error scanning {domain}: {str(e)}")
-        return None
+        return unique_results
+
+    return None
 
 def read_file(filename):
     try:

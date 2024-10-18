@@ -44,7 +44,7 @@ async function pollResults() {
                     Scan progress: ${progress.toFixed(2)}%<br>
                     Completed: ${result.completed} / ${result.total}<br>
                     Latest results:<br>
-                    ${result.results.map(r => `${r.domain}: ${r.found_terms.join(', ')}`).join('<br>')}
+                    ${result.results.map(r => `${r.domain} (${r.protocol}): ${r.found_terms.join(', ')}`).join('<br>')}
                 `;
 
                 if (result.is_complete) {
