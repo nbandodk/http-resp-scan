@@ -44,7 +44,7 @@ async def findit(output_file, search_terms, port, path_append, domains):
         s.headers['User-Agent'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.75 Safari/537.36'
         
         # Construct the URL with optional port and path
-        url = f'http://{domain}:{port}' if port else f'http://{domain}'
+        url = f'https://{domain}:{port}' if port else f'https://{domain}'
         url = f'{url}/{path_append.lstrip("/")}' if path_append else url
 
         response = s.get(url, verify=False, timeout=5)

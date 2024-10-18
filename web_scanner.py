@@ -13,13 +13,23 @@ import time
 import logging
 from scan_enhanced import read_file, findit
 from pydantic import ValidationError
+from contextlib import asynccontextmanager
 
 # Set up logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    background_tasks = BackgroundTasks()
+    background_tasks.add_task(cleanup_old_scans)
+    yield
+    # Shutdown
+    # Add any cleanup code here if needed
+
+app = FastAPI(lifespan=lifespan)
 
 # Serve static files (CSS, JS)
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -141,20 +151,15 @@ async def download_results(scan_id: str):
     
     return FileResponse(output_file, filename=f"scan_results_{scan_id}.txt")
 
-# Add a cleanup function to remove old scan results
-@app.on_event("startup")
-async def startup_event():
-    background_tasks = BackgroundTasks()
-    background_tasks.add_task(cleanup_old_scans)
-
 async def cleanup_old_scans():
     while True:
         current_time = time.time()
-        for scan_id, status in list(scan_status.items()):
-            if current_time - os.path.getmtime(status.output_file) > 3600:  # Remove scans older than 1 hour
-                os.remove(status.output_file)
-                del scan_status[scan_id]
-        await asyncio.sleep(3600)  # Run cleanup every hour
+        for filename in os.listdir():
+            if filename.startswith("results_") and filename.endswith(".txt"):
+                file_path = os.path.join(os.getcwd(), filename)
+                if current_time - os.path.getmtime(file_path) > 3600:  # 1 hour
+                    os.remove(file_path)
+        await asyncio.sleep(3600)  # Run every hour
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
