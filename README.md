@@ -18,11 +18,14 @@ A CLI that can be used to scan a list of ips/domains that need to be scanned and
 
 ## Examples
 
-`python3 scan.py -i ips.txt -s search-wordp.txt`
+`python3 scan.py -i ips.txt -s search/search-wordp.txt`
 This will scan the ips in ips.txt and look for the search terms in search-wordp.txt (WordPress CMS).
 
-`python3 scan.py -i ips.txt -s search-wordp.txt -a /wp-admin.php`
-This will scan the ips in ips.txt and look for the search terms in search-wordp.txt (WordPress CMS) and append /wp-admin.php to the url (the default login page for WordPress).
+`python3 scan.py -i ips.txt -s search/search-wordp.txt -a /wp-admin.php`
+This will scan the ips in ips.txt and look for the search terms in search/search-wordp.txt (WordPress CMS) and append /wp-admin.php to the url (the default login page for WordPress).
 
-`python3 scan.py -i domains.txt -s search-jetpack-plugin.txt`
-This will scan the domains in domains.txt and look for the search terms in search-jetpack-plugin.txt (Jetpack Plugin for WordPress).
+`python3 scan.py -i domains.txt -s search/search-jetpack-plugin.txt`
+This will scan the domains in domains.txt and look for the search terms in search/search-jetpack-plugin.txt (Jetpack Plugin for WordPress).
+
+`python3 scan.py -i ips.txt -s search/grafana.txt -p 3000`
+This will scan the ips in ips.txt and look for the search terms in search/grafana.txt (Grafana) on port 3000.
