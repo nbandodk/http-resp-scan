@@ -1,5 +1,0 @@
-action=lostpassword
-Powered by WordPress
-WordPress
-wp-content
-https://api.w.org
