@@ -30,8 +30,3 @@ This will scan the domains in domains.txt and look for the search terms in searc
 `python3 scan.py -i ips.txt -s search/grafana.txt -p 3000`
 This will scan the ips in ips.txt and look for the search terms in search/grafana.txt (Grafana) on port 3000.
 
-## Todo
-
-- [ ] Add more search terms
-- [ ] Add dns zone transfer like capability via IPAM database API to pull all cnames directly
-- [ ] Ansible role for the scanner to be installed on flexscan server such that it can be run globally from the command line
